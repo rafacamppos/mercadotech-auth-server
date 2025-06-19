@@ -4,6 +4,10 @@ import com.mercadotech.authserver.adapter.dto.LoginRequest;
 import com.mercadotech.authserver.adapter.dto.TokenResponse;
 import com.mercadotech.authserver.adapter.dto.ValidateRequest;
 import com.mercadotech.authserver.adapter.dto.ValidateResponse;
+import com.mercadotech.authserver.logging.StructuredLogger;
+import com.mercadotech.authserver.logging.DefaultStructuredLogger;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
 import com.mercadotech.authserver.application.useCase.TokenUseCase;
@@ -22,12 +26,30 @@ class AuthControllerTest {
     private TokenUseCase useCase;
     private AuthController controller;
     private SimpleMeterRegistry registry;
+    private Counter counter;
+    private Timer loginTimer;
+    private Timer validateTimer;
+    private StructuredLogger logger;
 
     @BeforeEach
     void setUp() {
         useCase = Mockito.mock(TokenUseCase.class);
         registry = new SimpleMeterRegistry();
-        controller = new AuthController(useCase, registry);
+        counter = Counter.builder("auth_tokens_issued")
+                .description("Number of tokens issued")
+                .register(registry);
+        loginTimer = Timer.builder("auth_login_latency")
+                .description("Latency of login endpoint")
+                .publishPercentileHistogram()
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(registry);
+        validateTimer = Timer.builder("auth_validate_latency")
+                .description("Latency of token validation endpoint")
+                .publishPercentileHistogram()
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(registry);
+        logger = new DefaultStructuredLogger(AuthController.class);
+        controller = new AuthController(useCase, counter, loginTimer, validateTimer, logger);
     }
 
     @Test

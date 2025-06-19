@@ -23,7 +23,10 @@ The application logs messages in JSON format to make aggregation easier. Each en
 ```
 
 The pod name is taken from the `POD_NAME` environment variable and the correlation ID comes from the MDC key `correlation_id`.
-=======
+Classes that generate log entries should instantiate a `DefaultStructuredLogger`
+and delegate logging to its `info`, `warn` and `error` methods. These methods
+accept the log message and an optional correlation ID that is automatically
+stored in the MDC before the entry is written.
 Este projeto demonstra uma arquitetura hexagonal simples para um servidor de autenticação baseado em Spring Boot. Os serviços disponibilizados permitem gerar e validar tokens JWT utilizando um `clientId` e um `clientSecret`.
 
 ## Requisitos
