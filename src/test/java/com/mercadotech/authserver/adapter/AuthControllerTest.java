@@ -5,7 +5,7 @@ import com.mercadotech.authserver.adapter.server.dto.TokenResponse;
 import com.mercadotech.authserver.adapter.server.dto.ValidateRequest;
 import com.mercadotech.authserver.adapter.server.dto.ValidateResponse;
 import com.mercadotech.authserver.adapter.server.controller.AuthController;
-import com.mercadotech.authserver.adapter.database.repository.CredentialsRepository;
+import com.mercadotech.authserver.application.service.CredentialsService;
 import com.mercadotech.authserver.logging.StructuredLogger;
 import com.mercadotech.authserver.logging.DefaultStructuredLogger;
 import io.micrometer.core.instrument.Counter;
@@ -31,7 +31,7 @@ class AuthControllerTest {
     private Counter counter;
     private Timer loginTimer;
     private Timer validateTimer;
-    private CredentialsRepository repository;
+    private CredentialsService credentialsService;
     private StructuredLogger logger;
 
     @BeforeEach
@@ -51,9 +51,9 @@ class AuthControllerTest {
                 .publishPercentileHistogram()
                 .publishPercentiles(0.5, 0.95, 0.99)
                 .register(registry);
-        repository = Mockito.mock(CredentialsRepository.class);
+        credentialsService = Mockito.mock(CredentialsService.class);
         logger = new DefaultStructuredLogger(AuthController.class);
-        controller = new AuthController(useCase, counter, loginTimer, validateTimer, repository);
+        controller = new AuthController(useCase, counter, loginTimer, validateTimer, credentialsService);
     }
 
     @Test
