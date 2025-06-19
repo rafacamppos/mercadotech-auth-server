@@ -7,6 +7,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
+import com.mercadotech.authserver.logging.DefaultStructuredLogger;
+import com.mercadotech.authserver.logging.StructuredLogger;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -16,6 +18,7 @@ import java.util.Date;
 public class JwtTokenService implements TokenService {
 
     private static final long EXPIRATION_MILLIS = 3600000; // 1 hour
+    private final StructuredLogger logger = new DefaultStructuredLogger(JwtTokenService.class);
 
     @Override
     public TokenData generateToken(Credentials credentials) {
@@ -42,6 +45,7 @@ public class JwtTokenService implements TokenService {
                     .getBody();
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
+            logger.error("Failed to validate token", null, e);
             return false;
         }
     }
