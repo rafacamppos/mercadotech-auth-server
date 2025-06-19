@@ -1,0 +1,57 @@
+package com.mercadotech.authserver.adapter;
+
+import com.mercadotech.authserver.adapter.dto.LoginRequest;
+import com.mercadotech.authserver.adapter.dto.TokenResponse;
+import com.mercadotech.authserver.adapter.dto.ValidateRequest;
+import com.mercadotech.authserver.adapter.dto.ValidateResponse;
+import com.mercadotech.authserver.application.useCase.TokenUseCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+class AuthControllerTest {
+
+    private TokenUseCase useCase;
+    private AuthController controller;
+
+    @BeforeEach
+    void setUp() {
+        useCase = Mockito.mock(TokenUseCase.class);
+        controller = new AuthController(useCase);
+    }
+
+    @Test
+    void loginReturnsTokenFromUseCase() {
+        LoginRequest request = new LoginRequest();
+        request.setClientId("id");
+        request.setClientSecret("sec");
+        when(useCase.generateToken("id", "sec")).thenReturn("tok");
+
+        ResponseEntity<TokenResponse> response = controller.login(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getToken()).isEqualTo("tok");
+        verify(useCase).generateToken("id", "sec");
+    }
+
+    @Test
+    void validateReturnsResultFromUseCase() {
+        ValidateRequest request = new ValidateRequest();
+        request.setToken("tok");
+        request.setClientSecret("sec");
+        when(useCase.validateToken("tok", "sec")).thenReturn(true);
+
+        ResponseEntity<ValidateResponse> response = controller.validate(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().isValid()).isTrue();
+        verify(useCase).validateToken("tok", "sec");
+    }
+}
