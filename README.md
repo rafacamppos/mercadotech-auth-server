@@ -131,3 +131,14 @@ O projeto expõe métricas via Spring Boot Actuator em `/actuator/prometheus` e 
 Os endpoints de login e validação possuem `Timer`s registrados no `MeterRegistry`,
 publicando histogramas e percentis (50%, 95% e 99%) de latência.
 
+
+## Integração Contínua
+
+Este repositório utiliza o GitHub Actions para compilar e executar os testes do projeto a cada push ou pull request. O fluxo de trabalho é definido em `.github/workflows/maven.yml` e executa o comando:
+
+```bash
+mvn -B verify
+```
+
+Isso garante que o build está sempre saudável antes de novas alterações serem mescladas.
+
