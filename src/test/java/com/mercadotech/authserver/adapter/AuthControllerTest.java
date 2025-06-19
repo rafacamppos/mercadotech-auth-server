@@ -7,6 +7,7 @@ import com.mercadotech.authserver.adapter.dto.ValidateResponse;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
 import com.mercadotech.authserver.application.useCase.TokenUseCase;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,11 +21,13 @@ class AuthControllerTest {
 
     private TokenUseCase useCase;
     private AuthController controller;
+    private SimpleMeterRegistry registry;
 
     @BeforeEach
     void setUp() {
         useCase = Mockito.mock(TokenUseCase.class);
-        controller = new AuthController(useCase);
+        registry = new SimpleMeterRegistry();
+        controller = new AuthController(useCase, registry);
     }
 
     @Test
