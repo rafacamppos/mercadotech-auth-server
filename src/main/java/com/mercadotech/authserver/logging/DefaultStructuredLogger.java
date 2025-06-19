@@ -3,6 +3,7 @@ package com.mercadotech.authserver.logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import com.mercadotech.authserver.context.ExecutionContext;
 import java.util.UUID;
 
 /**
@@ -12,9 +13,15 @@ import java.util.UUID;
 public class DefaultStructuredLogger implements StructuredLogger {
 
     private final Logger logger;
+    private final ExecutionContext executionContext;
 
     public DefaultStructuredLogger(Class<?> clazz) {
+        this(clazz, null);
+    }
+
+    public DefaultStructuredLogger(Class<?> clazz, ExecutionContext context) {
         this.logger = LoggerFactory.getLogger(clazz);
+        this.executionContext = context;
     }
 
     @Override
@@ -39,9 +46,15 @@ public class DefaultStructuredLogger implements StructuredLogger {
     private void logWithCorrelationId(Runnable action, String correlationId) {
         String cid = correlationId != null ? correlationId : UUID.randomUUID().toString();
         MDC.put("correlation_id", cid);
+        if (executionContext != null && !executionContext.values().isEmpty()) {
+            MDC.put("context", executionContext.values().toString());
+        }
         try {
             action.run();
         } finally {
+            if (executionContext != null) {
+                MDC.remove("context");
+            }
             MDC.remove("correlation_id");
         }
     }

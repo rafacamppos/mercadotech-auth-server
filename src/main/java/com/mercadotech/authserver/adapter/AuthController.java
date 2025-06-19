@@ -13,6 +13,8 @@ import com.mercadotech.authserver.domain.model.TokenData;
 import java.util.UUID;
 
 import com.mercadotech.authserver.logging.DefaultStructuredLogger;
+import com.mercadotech.authserver.context.ExecutionContext;
+import com.mercadotech.authserver.context.ThreadLocalExecutionContext;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import com.mercadotech.authserver.logging.StructuredLogger;
@@ -33,10 +35,12 @@ public class AuthController {
     private final Counter tokensIssuedCounter;
     private final Timer loginTimer;
     private final Timer validateTimer;
-    private final StructuredLogger logger = new DefaultStructuredLogger(AuthController.class);
+    private final ExecutionContext context = new ThreadLocalExecutionContext();
+    private final StructuredLogger logger = new DefaultStructuredLogger(AuthController.class, context);
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+        context.put("clientId", request.getClientId());
         try {
             validateUuid(request.getClientId());
             validateUuid(request.getClientSecret());
@@ -51,12 +55,16 @@ public class AuthController {
         } catch (Exception e) {
             logger.error(String.format("Login failed for client %s", request.getClientId()), null, e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } finally {
+            context.clear();
         }
     }
 
     @PostMapping("/token/validate")
     public ResponseEntity<ValidateResponse> validate(@RequestBody ValidateRequest request) {
-        return validateTimer.record(() -> {
+        context.put("token", request.getToken());
+        try {
+            return validateTimer.record(() -> {
             try {
                 validateUuid(request.getClientSecret());
             } catch (Exception e) {
@@ -76,6 +84,9 @@ public class AuthController {
                         .body(ValidateResponse.builder().valid(false).build());
             }
         });
+        } finally {
+            context.clear();
+        }
     }
 
     private void validateUuid(String value) {

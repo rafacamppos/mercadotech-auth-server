@@ -9,7 +9,7 @@ are used to reduce boilerplate in service implementations.
 
 ## Logging
 
-The application logs messages in JSON format to make aggregation easier. Each entry contains the timestamp, log level, class name, Kubernetes pod name and a correlation ID if available:
+The application logs messages in JSON format to make aggregation easier. Each entry contains the timestamp, log level, class name, Kubernetes pod name, a correlation ID if available and any values stored in the execution context:
 
 ```json
 {
@@ -18,7 +18,8 @@ The application logs messages in JSON format to make aggregation easier. Each en
   "class": "class-name",
   "pod_name": "order-service-abc123",
   "message": "Order processed successfully",
-  "correlation_id": "uuid"
+  "correlation_id": "uuid",
+  "context": "{userId=123}"
 }
 ```
 
@@ -27,7 +28,21 @@ Classes that generate log entries should instantiate a `DefaultStructuredLogger`
 and delegate logging to its `info`, `warn` and `error` methods. These methods
 accept the log message and an optional correlation ID that is automatically
 stored in the MDC before the entry is written. If the ID is not provided, the
-logger generates a random UUID.
+logger generates a random one. When an `ExecutionContext` instance is passed to
+the logger constructor its values are serialized and added to the MDC under the
+`context` key.
+## Execution Context
+
+To keep request-specific data available throughout the processing of a single thread the project provides the `ExecutionContext` API. This context is backed by a `ThreadLocal` map allowing values to be stored and retrieved later in the same thread.
+
+```java
+ExecutionContext ctx = new ThreadLocalExecutionContext();
+ctx.put("userId", "123");
+StructuredLogger logger = new DefaultStructuredLogger(MyClass.class, ctx);
+logger.info("Operation completed", null);
+String user = (String) ctx.get("userId");
+ctx.clear();
+```
 Este projeto demonstra uma arquitetura hexagonal simples para um servidor de autenticação baseado em Spring Boot. Os serviços disponibilizados permitem gerar e validar tokens JWT utilizando um `clientId` e um `clientSecret`.
 
 ## Requisitos
