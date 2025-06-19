@@ -1,5 +1,6 @@
-package com.mercadotech.authserver.application.useCase;
+package com.mercadotech.authserver.application.service;
 
+import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import com.mercadotech.authserver.domain.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
