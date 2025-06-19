@@ -1,0 +1,9 @@
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/domain/mapper/CredentialsMapperTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/adapter/mapper/CredentialsMapperTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/adapter/mapper/TokenResponseMapperTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/domain/mapper/TokenDataMapperTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/application/mapper/TokenDataMapperTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/application/service/TokenUseCaseImplTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/adapter/mapper/TokenMapperTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/adapter/JwtTokenServiceTest.java
+/Users/rafaelcampos/git2025/mercadotech-auth-server/src/test/java/com/mercadotech/authserver/adapter/AuthControllerTest.java

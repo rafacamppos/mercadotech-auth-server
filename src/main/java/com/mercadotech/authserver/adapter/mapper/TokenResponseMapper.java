@@ -1,5 +1,6 @@
 package com.mercadotech.authserver.adapter.mapper;
 
+
 import com.mercadotech.authserver.adapter.dto.TokenResponse;
 import com.mercadotech.authserver.domain.model.TokenData;
 import lombok.experimental.UtilityClass;
