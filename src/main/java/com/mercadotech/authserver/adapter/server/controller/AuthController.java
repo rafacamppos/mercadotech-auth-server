@@ -8,8 +8,7 @@ import com.mercadotech.authserver.adapter.server.mapper.CredentialsMapper;
 import com.mercadotech.authserver.adapter.server.mapper.TokenMapper;
 import com.mercadotech.authserver.adapter.server.mapper.TokenResponseMapper;
 import com.mercadotech.authserver.application.useCase.TokenUseCase;
-import com.mercadotech.authserver.adapter.database.entity.CredentialsEntity;
-import com.mercadotech.authserver.adapter.database.repository.CredentialsRepository;
+import com.mercadotech.authserver.application.service.CredentialsService;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
 import java.util.UUID;
@@ -35,7 +34,7 @@ public class AuthController {
     private final Counter tokensIssuedCounter;
     private final Timer loginTimer;
     private final Timer validateTimer;
-    private final CredentialsRepository credentialsRepository;
+    private final CredentialsService credentialsService;
     private final StructuredLogger logger = new DefaultStructuredLogger(AuthController.class);
 
     @PostMapping("/login")
@@ -45,10 +44,7 @@ public class AuthController {
             validateUuid(request.getClientSecret());
             return loginTimer.record(() -> {
                 Credentials credentials = CredentialsMapper.from(request);
-                credentialsRepository.save(CredentialsEntity.builder()
-                        .clientId(credentials.getClientId())
-                        .clientSecret(credentials.getClientSecret())
-                        .build());
+                credentialsService.save(credentials);
                 TokenData tokenData = tokenUseCase.generateToken(credentials);
                 tokensIssuedCounter.increment();
                 logger.info(String.format("Login success for client %s", credentials.getClientId()), null);
