@@ -11,6 +11,8 @@ import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
 import java.util.UUID;
+
+import com.mercadotech.authserver.logging.DefaultStructuredLogger;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import com.mercadotech.authserver.logging.StructuredLogger;
@@ -31,7 +33,7 @@ public class AuthController {
     private final Counter tokensIssuedCounter;
     private final Timer loginTimer;
     private final Timer validateTimer;
-    private final StructuredLogger logger;
+    private final StructuredLogger logger = new DefaultStructuredLogger(AuthController.class);
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
