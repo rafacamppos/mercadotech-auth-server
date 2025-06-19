@@ -3,6 +3,7 @@ package com.mercadotech.authserver.logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import java.util.UUID;
 
 /**
  * Default implementation of {@link StructuredLogger} that delegates to an SLF4J
@@ -31,16 +32,17 @@ public class DefaultStructuredLogger implements StructuredLogger {
         logWithCorrelationId(() -> logger.error(message, t), correlationId);
     }
 
+    /**
+     * Executes the logging action with the correlation ID stored in the MDC.
+     * A random UUID is generated when the provided ID is {@code null}.
+     */
     private void logWithCorrelationId(Runnable action, String correlationId) {
-        if (correlationId != null) {
-            MDC.put("correlation_id", correlationId);
-        }
+        String cid = correlationId != null ? correlationId : UUID.randomUUID().toString();
+        MDC.put("correlation_id", cid);
         try {
             action.run();
         } finally {
-            if (correlationId != null) {
-                MDC.remove("correlation_id");
-            }
+            MDC.remove("correlation_id");
         }
     }
 }
