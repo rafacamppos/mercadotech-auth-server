@@ -55,11 +55,11 @@ class AuthControllerTest {
     @Test
     void loginReturnsTokenFromUseCase() {
         LoginRequest request = new LoginRequest();
-        request.setClientId("id");
-        request.setClientSecret("sec");
+        request.setClientId("550e8400-e29b-41d4-a716-446655440000");
+        request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
         Credentials credentials = Credentials.builder()
-                .clientId("id")
-                .clientSecret("sec")
+                .clientId("550e8400-e29b-41d4-a716-446655440000")
+                .clientSecret("123e4567-e89b-12d3-a456-426614174000")
                 .build();
         TokenData tokenData = TokenData.builder().token("tok").build();
         when(useCase.generateToken(credentials)).thenReturn(tokenData);
@@ -76,9 +76,9 @@ class AuthControllerTest {
     void validateReturnsResultFromUseCase() {
         ValidateRequest request = new ValidateRequest();
         request.setToken("tok");
-        request.setClientSecret("sec");
+        request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
         Credentials credentials = Credentials.builder()
-                .clientSecret("sec")
+                .clientSecret("123e4567-e89b-12d3-a456-426614174000")
                 .build();
         TokenData tokenData = TokenData.builder().token("tok").build();
         when(useCase.validateToken(tokenData, credentials)).thenReturn(true);
@@ -94,11 +94,11 @@ class AuthControllerTest {
     @Test
     void loginReturnsUnauthorizedOnException() {
         LoginRequest request = new LoginRequest();
-        request.setClientId("id");
-        request.setClientSecret("sec");
+        request.setClientId("550e8400-e29b-41d4-a716-446655440000");
+        request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
         Credentials credentials = Credentials.builder()
-                .clientId("id")
-                .clientSecret("sec")
+                .clientId("550e8400-e29b-41d4-a716-446655440000")
+                .clientSecret("123e4567-e89b-12d3-a456-426614174000")
                 .build();
         when(useCase.generateToken(credentials)).thenThrow(new RuntimeException("err"));
 
@@ -106,5 +106,50 @@ class AuthControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         verify(useCase).generateToken(credentials);
+    }
+
+    @Test
+    void loginReturnsUnauthorizedWhenCredentialsAreNotUuid() {
+        LoginRequest request = new LoginRequest();
+        request.setClientId("not-uuid");
+        request.setClientSecret("also-not-uuid");
+
+        ResponseEntity<TokenResponse> response = controller.login(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        verifyNoInteractions(useCase);
+    }
+
+    @Test
+    void validateReturnsUnauthorizedWhenSecretNotUuid() {
+        ValidateRequest request = new ValidateRequest();
+        request.setToken("tok");
+        request.setClientSecret("not-uuid");
+
+        ResponseEntity<ValidateResponse> response = controller.validate(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().isValid()).isFalse();
+        verifyNoInteractions(useCase);
+    }
+
+    @Test
+    void validateReturnsUnauthorizedWhenTokenInvalid() {
+        ValidateRequest request = new ValidateRequest();
+        request.setToken("tok");
+        request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
+        Credentials credentials = Credentials.builder()
+                .clientSecret("123e4567-e89b-12d3-a456-426614174000")
+                .build();
+        TokenData tokenData = TokenData.builder().token("tok").build();
+        when(useCase.validateToken(tokenData, credentials)).thenReturn(false);
+
+        ResponseEntity<ValidateResponse> response = controller.validate(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().isValid()).isFalse();
+        verify(useCase).validateToken(tokenData, credentials);
     }
 }
