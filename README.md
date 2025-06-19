@@ -76,6 +76,11 @@ Para iniciar rapidamente um banco PostgreSQL local execute o script abaixo:
 ```
 
 O script irá criar um container nomeado `auth-postgres` escutando na porta `5432` com as credenciais definidas em `src/main/resources/application.yaml`.
+Com o container em execução, crie a tabela de credenciais executando:
+
+```bash
+psql -h localhost -U postgres -d authdb -f scripts/create_credentials_table.sql
+```
 
 ## Endpoints principais
 
