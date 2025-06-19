@@ -68,4 +68,21 @@ class AuthControllerTest {
         assertThat(response.getBody().isValid()).isTrue();
         verify(useCase).validateToken(tokenData, credentials);
     }
+
+    @Test
+    void loginReturnsUnauthorizedOnException() {
+        LoginRequest request = new LoginRequest();
+        request.setClientId("id");
+        request.setClientSecret("sec");
+        Credentials credentials = Credentials.builder()
+                .clientId("id")
+                .clientSecret("sec")
+                .build();
+        when(useCase.generateToken(credentials)).thenThrow(new RuntimeException("err"));
+
+        ResponseEntity<TokenResponse> response = controller.login(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        verify(useCase).generateToken(credentials);
+    }
 }
