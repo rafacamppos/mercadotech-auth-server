@@ -2,6 +2,8 @@ package com.mercadotech.authserver.application.service;
 
 import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import com.mercadotech.authserver.domain.TokenService;
+import com.mercadotech.authserver.domain.model.Credentials;
+import com.mercadotech.authserver.domain.model.TokenData;
 import com.mercadotech.authserver.application.service.TokenUseCaseImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,17 +25,32 @@ class TokenUseCaseImplTest {
 
     @Test
     void generateTokenDelegatesToService() {
-        when(tokenService.generateToken("id", "secret")).thenReturn("token");
-        String result = useCase.generateToken("id", "secret");
-        assertThat(result).isEqualTo("token");
-        verify(tokenService).generateToken("id", "secret");
+        Credentials credentials = Credentials.builder()
+                .clientId("id")
+                .clientSecret("secret")
+                .build();
+        TokenData tokenData = TokenData.builder().token("token").build();
+
+        when(tokenService.generateToken(credentials)).thenReturn(tokenData);
+
+        TokenData result = useCase.generateToken(credentials);
+
+        assertThat(result).isEqualTo(tokenData);
+        verify(tokenService).generateToken(credentials);
     }
 
     @Test
     void validateTokenDelegatesToService() {
-        when(tokenService.validateToken("tok", "sec")).thenReturn(true);
-        boolean result = useCase.validateToken("tok", "sec");
+        Credentials credentials = Credentials.builder()
+                .clientSecret("sec")
+                .build();
+        TokenData tokenData = TokenData.builder().token("tok").build();
+
+        when(tokenService.validateToken(tokenData, credentials)).thenReturn(true);
+
+        boolean result = useCase.validateToken(tokenData, credentials);
+
         assertThat(result).isTrue();
-        verify(tokenService).validateToken("tok", "sec");
+        verify(tokenService).validateToken(tokenData, credentials);
     }
 }
