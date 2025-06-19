@@ -80,6 +80,23 @@ Resposta (HTTP 200):
 
 Os detalhes completos de cada endpoint podem ser consultados no arquivo [`openapi.yaml`](openapi.yaml).
 
+## Como utilizar o `openapi.yaml`
+
+O arquivo `openapi.yaml` segue a especificação OpenAPI e pode ser importado em
+ferramentas como Swagger UI, Postman ou Insomnia para explorar a API
+interativamente. Uma maneira rápida de visualizar a documentação é utilizando a
+imagem oficial do Swagger UI:
+
+```bash
+docker run --rm -p 8081:8080 \
+  -e SWAGGER_JSON=/data/openapi.yaml \
+  -v $(pwd)/openapi.yaml:/data/openapi.yaml \
+  swaggerapi/swagger-ui
+```
+
+Após executar o comando acima, acesse `http://localhost:8081` em seu navegador
+para consultar e testar os endpoints disponíveis.
+
 ## Métricas
 
 O projeto expõe métricas via Spring Boot Actuator em `/actuator/prometheus`, permitindo integração com o Prometheus.
