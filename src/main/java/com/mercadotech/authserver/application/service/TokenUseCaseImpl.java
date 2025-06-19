@@ -2,6 +2,8 @@ package com.mercadotech.authserver.application.service;
 
 import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import com.mercadotech.authserver.domain.TokenService;
+import com.mercadotech.authserver.domain.model.Credentials;
+import com.mercadotech.authserver.domain.model.TokenData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +14,12 @@ public class TokenUseCaseImpl implements TokenUseCase {
     private final TokenService tokenService;
 
     @Override
-    public String generateToken(String clientId, String clientSecret) {
-        return tokenService.generateToken(clientId, clientSecret);
+    public TokenData generateToken(Credentials credentials) {
+        return tokenService.generateToken(credentials);
     }
 
     @Override
-    public boolean validateToken(String token, String clientSecret) {
-        return tokenService.validateToken(token, clientSecret);
+    public boolean validateToken(TokenData tokenData, Credentials credentials) {
+        return tokenService.validateToken(tokenData, credentials);
     }
 }

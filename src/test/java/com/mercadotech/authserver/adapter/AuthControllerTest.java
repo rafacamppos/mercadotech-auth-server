@@ -4,6 +4,8 @@ import com.mercadotech.authserver.adapter.dto.LoginRequest;
 import com.mercadotech.authserver.adapter.dto.TokenResponse;
 import com.mercadotech.authserver.adapter.dto.ValidateRequest;
 import com.mercadotech.authserver.adapter.dto.ValidateResponse;
+import com.mercadotech.authserver.domain.model.Credentials;
+import com.mercadotech.authserver.domain.model.TokenData;
 import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,14 +32,19 @@ class AuthControllerTest {
         LoginRequest request = new LoginRequest();
         request.setClientId("id");
         request.setClientSecret("sec");
-        when(useCase.generateToken("id", "sec")).thenReturn("tok");
+        Credentials credentials = Credentials.builder()
+                .clientId("id")
+                .clientSecret("sec")
+                .build();
+        TokenData tokenData = TokenData.builder().token("tok").build();
+        when(useCase.generateToken(credentials)).thenReturn(tokenData);
 
         ResponseEntity<TokenResponse> response = controller.login(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getToken()).isEqualTo("tok");
-        verify(useCase).generateToken("id", "sec");
+        verify(useCase).generateToken(credentials);
     }
 
     @Test
@@ -45,13 +52,17 @@ class AuthControllerTest {
         ValidateRequest request = new ValidateRequest();
         request.setToken("tok");
         request.setClientSecret("sec");
-        when(useCase.validateToken("tok", "sec")).thenReturn(true);
+        Credentials credentials = Credentials.builder()
+                .clientSecret("sec")
+                .build();
+        TokenData tokenData = TokenData.builder().token("tok").build();
+        when(useCase.validateToken(tokenData, credentials)).thenReturn(true);
 
         ResponseEntity<ValidateResponse> response = controller.validate(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().isValid()).isTrue();
-        verify(useCase).validateToken("tok", "sec");
+        verify(useCase).validateToken(tokenData, credentials);
     }
 }
