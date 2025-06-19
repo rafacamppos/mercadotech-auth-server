@@ -1,9 +1,10 @@
 package com.mercadotech.authserver.adapter;
 
-import com.mercadotech.authserver.adapter.dto.LoginRequest;
-import com.mercadotech.authserver.adapter.dto.TokenResponse;
-import com.mercadotech.authserver.adapter.dto.ValidateRequest;
-import com.mercadotech.authserver.adapter.dto.ValidateResponse;
+import com.mercadotech.authserver.adapter.server.dto.LoginRequest;
+import com.mercadotech.authserver.adapter.server.dto.TokenResponse;
+import com.mercadotech.authserver.adapter.server.dto.ValidateRequest;
+import com.mercadotech.authserver.adapter.server.dto.ValidateResponse;
+import com.mercadotech.authserver.adapter.server.controller.AuthController;
 import com.mercadotech.authserver.logging.StructuredLogger;
 import com.mercadotech.authserver.logging.DefaultStructuredLogger;
 import io.micrometer.core.instrument.Counter;

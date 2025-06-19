@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.mercadotech.authserver.adapter.AuthControllerTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.454 s -- in com.mercadotech.authserver.adapter.AuthControllerTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.457 s -- in com.mercadotech.authserver.adapter.AuthControllerTest

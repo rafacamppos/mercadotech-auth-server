@@ -1,5 +1,6 @@
 package com.mercadotech.authserver.adapter;
 
+import com.mercadotech.authserver.application.service.JwtTokenService;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
