@@ -31,6 +31,7 @@ public class AuthController {
     private final TokenUseCase tokenUseCase;
     private final Counter tokensIssuedCounter;
     private final Timer loginTimer;
+    private final Timer validateTimer;
 
     public AuthController(TokenUseCase tokenUseCase, MeterRegistry registry) {
         this.tokenUseCase = tokenUseCase;
@@ -39,6 +40,13 @@ public class AuthController {
                 .register(registry);
         this.loginTimer = Timer.builder("auth_login_latency")
                 .description("Latency of login endpoint")
+                .publishPercentileHistogram()
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(registry);
+        this.validateTimer = Timer.builder("auth_validate_latency")
+                .description("Latency of token validation endpoint")
+                .publishPercentileHistogram()
+                .publishPercentiles(0.5, 0.95, 0.99)
                 .register(registry);
     }
 
@@ -61,14 +69,16 @@ public class AuthController {
 
     @PostMapping("/token/validate")
     public ResponseEntity<ValidateResponse> validate(@RequestBody ValidateRequest request) {
-        Credentials credentials = CredentialsMapper.from(request);
-        TokenData tokenData = TokenMapper.from(request);
-        boolean valid = tokenUseCase.validateToken(tokenData, credentials);
-        if (valid) {
-            logger.info("Token validation success");
-        } else {
-            logger.warn("Token validation failed");
-        }
-        return ResponseEntity.ok(ValidateResponse.builder().valid(valid).build());
+        return validateTimer.record(() -> {
+            Credentials credentials = CredentialsMapper.from(request);
+            TokenData tokenData = TokenMapper.from(request);
+            boolean valid = tokenUseCase.validateToken(tokenData, credentials);
+            if (valid) {
+                logger.info("Token validation success");
+            } else {
+                logger.warn("Token validation failed");
+            }
+            return ResponseEntity.ok(ValidateResponse.builder().valid(valid).build());
+        });
     }
 }

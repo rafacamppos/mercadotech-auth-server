@@ -123,5 +123,7 @@ para consultar e testar os endpoints disponíveis.
 
 ## Métricas
 
-O projeto expõe métricas via Spring Boot Actuator em `/actuator/prometheus`, permitindo integração com o Prometheus.
+O projeto expõe métricas via Spring Boot Actuator em `/actuator/prometheus` e `/actuator/metrics`, permitindo integração com o Prometheus.
+Os endpoints de login e validação possuem `Timer`s registrados no `MeterRegistry`,
+publicando histogramas e percentis (50%, 95% e 99%) de latência.
 
