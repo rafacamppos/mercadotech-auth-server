@@ -11,10 +11,9 @@ import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mercadotech.authserver.logging.StructuredLogger;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,31 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping
+@AllArgsConstructor
 public class AuthController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final TokenUseCase tokenUseCase;
     private final Counter tokensIssuedCounter;
     private final Timer loginTimer;
     private final Timer validateTimer;
-
-    public AuthController(TokenUseCase tokenUseCase, MeterRegistry registry) {
-        this.tokenUseCase = tokenUseCase;
-        this.tokensIssuedCounter = Counter.builder("auth_tokens_issued")
-                .description("Number of tokens issued")
-                .register(registry);
-        this.loginTimer = Timer.builder("auth_login_latency")
-                .description("Latency of login endpoint")
-                .publishPercentileHistogram()
-                .publishPercentiles(0.5, 0.95, 0.99)
-                .register(registry);
-        this.validateTimer = Timer.builder("auth_validate_latency")
-                .description("Latency of token validation endpoint")
-                .publishPercentileHistogram()
-                .publishPercentiles(0.5, 0.95, 0.99)
-                .register(registry);
-    }
+    private final StructuredLogger logger;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
@@ -57,12 +39,12 @@ public class AuthController {
                 Credentials credentials = CredentialsMapper.from(request);
                 TokenData tokenData = tokenUseCase.generateToken(credentials);
                 tokensIssuedCounter.increment();
-                logger.info("Login success for client {}", credentials.getClientId());
+                logger.info(String.format("Login success for client %s", credentials.getClientId()), null);
                 TokenResponse response = TokenResponseMapper.from(tokenData);
                 return ResponseEntity.ok(response);
             });
         } catch (Exception e) {
-            logger.error("Login failed for client {}", request.getClientId(), e);
+            logger.error(String.format("Login failed for client %s", request.getClientId()), null, e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
@@ -74,9 +56,9 @@ public class AuthController {
             TokenData tokenData = TokenMapper.from(request);
             boolean valid = tokenUseCase.validateToken(tokenData, credentials);
             if (valid) {
-                logger.info("Token validation success");
+                logger.info("Token validation success", null);
             } else {
-                logger.warn("Token validation failed");
+                logger.warn("Token validation failed", null);
             }
             return ResponseEntity.ok(ValidateResponse.builder().valid(valid).build());
         });
