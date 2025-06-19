@@ -1,6 +1,8 @@
-package com.mercadotech.authserver.application.useCase;
+package com.mercadotech.authserver.application.service;
 
+import com.mercadotech.authserver.application.useCase.TokenUseCase;
 import com.mercadotech.authserver.domain.TokenService;
+import com.mercadotech.authserver.application.service.TokenUseCaseImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
