@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import java.util.UUID;
+import com.mercadotech.authserver.context.ThreadContext;
 
 /**
  * Default implementation of {@link StructuredLogger} that delegates to an SLF4J
@@ -11,6 +12,7 @@ import java.util.UUID;
  */
 public class DefaultStructuredLogger implements StructuredLogger {
 
+    static final String CORRELATION_ID_KEY = "correlation_id";
     private final Logger logger;
 
     public DefaultStructuredLogger(Class<?> clazz) {
@@ -37,12 +39,19 @@ public class DefaultStructuredLogger implements StructuredLogger {
      * A random UUID is generated when the provided ID is {@code null}.
      */
     private void logWithCorrelationId(Runnable action, String correlationId) {
-        String cid = correlationId != null ? correlationId : UUID.randomUUID().toString();
-        MDC.put("correlation_id", cid);
+        String cid = correlationId;
+        if (cid == null) {
+            cid = ThreadContext.get(CORRELATION_ID_KEY, String.class);
+        }
+        if (cid == null) {
+            cid = UUID.randomUUID().toString();
+        }
+        ThreadContext.put(CORRELATION_ID_KEY, cid);
+        MDC.put(CORRELATION_ID_KEY, cid);
         try {
             action.run();
         } finally {
-            MDC.remove("correlation_id");
+            MDC.remove(CORRELATION_ID_KEY);
         }
     }
 }
