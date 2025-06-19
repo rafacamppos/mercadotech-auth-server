@@ -49,7 +49,7 @@ class AuthControllerTest {
                 .publishPercentiles(0.5, 0.95, 0.99)
                 .register(registry);
         logger = new DefaultStructuredLogger(AuthController.class);
-        controller = new AuthController(useCase, counter, loginTimer, validateTimer, logger);
+        controller = new AuthController(useCase, counter, loginTimer, validateTimer);
     }
 
     @Test
