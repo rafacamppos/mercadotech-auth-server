@@ -3,6 +3,8 @@ package com.mercadotech.authserver.adapter;
 import com.mercadotech.authserver.domain.TokenService;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
+import com.mercadotech.authserver.logging.DefaultStructuredLogger;
+import com.mercadotech.authserver.logging.StructuredLogger;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +18,7 @@ import java.util.Date;
 public class JwtTokenService implements TokenService {
 
     private static final long EXPIRATION_MILLIS = 3600000; // 1 hour
+    private final StructuredLogger logger = new DefaultStructuredLogger(JwtTokenService.class);
 
     @Override
     public TokenData generateToken(Credentials credentials) {
@@ -42,6 +45,7 @@ public class JwtTokenService implements TokenService {
                     .getBody();
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
+            logger.error("Token validation error", null, e);
             return false;
         }
     }

@@ -15,6 +15,7 @@ The application logs messages in JSON format to make aggregation easier. Each en
 {
   "timestamp": "2025-06-19T14:00:00Z",
   "level": "INFO",
+  "severity": "INFO",
   "class": "class-name",
   "pod_name": "order-service-abc123",
   "message": "Order processed successfully",
