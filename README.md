@@ -67,6 +67,16 @@ docker build -t auth-server .
 docker run -p 8080:8080 auth-server
 ```
 
+### Banco de dados PostgreSQL com Docker
+
+Para iniciar rapidamente um banco PostgreSQL local execute o script abaixo:
+
+```bash
+./scripts/start-postgres.sh
+```
+
+O script irá criar um container nomeado `auth-postgres` escutando na porta `5432` com as credenciais definidas em `src/main/resources/application.yaml`.
+
 ## Endpoints principais
 
 ### `POST /login`
