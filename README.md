@@ -9,26 +9,20 @@ are used to reduce boilerplate in service implementations.
 
 ## Logging
 
-The application logs messages in JSON format to make aggregation easier. Each entry contains the timestamp, log level, class name, Kubernetes pod name and a correlation ID if available:
+A aplicação registra mensagens em formato JSON para facilitar a agregação. Cada entrada inclui data e hora, nível do log, nome da classe, nome do pod do Kubernetes e um ID de correlação, se disponível:
 
 ```json
 {
   "timestamp": "2025-06-19T14:00:00Z",
   "level": "INFO",
-  "class": "class-name",
+  "class": "nome-da-classe",
   "pod_name": "order-service-abc123",
-  "message": "Order processed successfully",
+  "message": "Pedido processado com sucesso",
   "correlation_id": "uuid"
 }
 ```
 
-The pod name is taken from the `POD_NAME` environment variable. The correlation
-ID is kept in a thread-local context under the key `correlation_id` and added to
-the MDC when a message is logged. Classes that generate log entries should
-instantiate a `DefaultStructuredLogger` and delegate logging to its `info`,
-`warn` and `error` methods. These methods accept the log message and an optional
-correlation ID. If none is provided, the logger reuses the one stored in the
-context or generates a random UUID, storing it for subsequent entries.
+O nome do pod é obtido a partir da variável de ambiente `POD_NAME`. O ID de correlação é mantido em um contexto de thread sob a chave `correlation_id` e adicionado ao MDC quando uma mensagem é registrada. As classes que geram logs devem instanciar um `DefaultStructuredLogger` e delegar a ele as chamadas `info`, `warn` e `error`. Esses métodos recebem a mensagem e um ID de correlação opcional. Caso nenhum seja fornecido, o logger reutiliza o ID armazenado no contexto ou gera um UUID aleatório para as próximas entradas.
 Este projeto demonstra uma arquitetura hexagonal simples para um servidor de autenticação baseado em Spring Boot. Os serviços disponibilizados permitem gerar e validar tokens JWT utilizando um `clientId` e um `clientSecret`.
 
 ## Requisitos

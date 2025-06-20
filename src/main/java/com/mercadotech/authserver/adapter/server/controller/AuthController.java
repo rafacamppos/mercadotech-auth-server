@@ -47,12 +47,12 @@ public class AuthController {
                 credentialsService.save(credentials);
                 TokenData tokenData = tokenUseCase.generateToken(credentials);
                 tokensIssuedCounter.increment();
-                logger.info(String.format("Login success for client %s", credentials.getClientId()), null);
+                logger.info(String.format("Login realizado com sucesso para o cliente %s", credentials.getClientId()), null);
                 TokenResponse response = TokenResponseMapper.from(tokenData);
                 return ResponseEntity.ok(response);
             });
         } catch (Exception e) {
-            logger.error(String.format("Login failed for client %s", request.getClientId()), null, e);
+            logger.error(String.format("Falha no login para o cliente %s", request.getClientId()), null, e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
@@ -63,7 +63,7 @@ public class AuthController {
             try {
                 validateUuid(request.getClientSecret());
             } catch (Exception e) {
-                logger.error("Invalid clientSecret format", null, e);
+                logger.error("Formato do clientSecret inválido", null, e);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ValidateResponse.builder().valid(false).build());
             }
@@ -71,10 +71,10 @@ public class AuthController {
             TokenData tokenData = TokenMapper.from(request);
             boolean valid = tokenUseCase.validateToken(tokenData, credentials);
             if (valid) {
-                logger.info("Token validation success", null);
+                logger.info("Validação do token bem-sucedida", null);
                 return ResponseEntity.ok(ValidateResponse.builder().valid(true).build());
             } else {
-                logger.warn("Token validation failed", null);
+                logger.warn("Falha na validação do token", null);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ValidateResponse.builder().valid(false).build());
             }
