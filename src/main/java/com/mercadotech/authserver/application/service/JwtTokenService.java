@@ -44,7 +44,7 @@ public class JwtTokenService implements TokenService {
                     .getBody();
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
-            logger.error("Failed to validate token", null, e);
+            logger.error("Erro ao validar o token", null, e);
             return false;
         }
     }
