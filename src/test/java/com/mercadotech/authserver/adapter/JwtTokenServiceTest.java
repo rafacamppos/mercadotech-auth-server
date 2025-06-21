@@ -4,8 +4,10 @@ import com.mercadotech.authserver.application.service.JwtTokenService;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
+import com.mercadotech.authserver.exception.BusinessException;
 
 public class JwtTokenServiceTest {
 
@@ -25,7 +27,7 @@ public class JwtTokenServiceTest {
     }
 
     @Test
-    void validateTokenFailsWithWrongSecret() {
+    void validateTokenThrowsBusinessExceptionWithWrongSecret() {
         Credentials credentials = Credentials.builder()
                 .clientId(clientId)
                 .clientSecret(secret)
@@ -34,6 +36,7 @@ public class JwtTokenServiceTest {
         Credentials wrongCredentials = Credentials.builder()
                 .clientSecret(secret + "x")
                 .build();
-        assertThat(service.validateToken(token, wrongCredentials)).isFalse();
+        assertThatThrownBy(() -> service.validateToken(token, wrongCredentials))
+                .isInstanceOf(BusinessException.class);
     }
 }
