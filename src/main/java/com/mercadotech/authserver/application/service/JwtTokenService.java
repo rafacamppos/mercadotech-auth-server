@@ -2,6 +2,7 @@ package com.mercadotech.authserver.application.service;
 
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
+import com.mercadotech.authserver.exception.BusinessException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -45,7 +46,7 @@ public class JwtTokenService implements TokenService {
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
             logger.error("Failed to validate token", null, e);
-            return false;
+            throw new BusinessException("Invalid token", e);
         }
     }
 }

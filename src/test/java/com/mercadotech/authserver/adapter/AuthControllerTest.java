@@ -19,8 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.mercadotech.authserver.exception.BusinessException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class AuthControllerTest {
@@ -96,7 +98,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void loginReturnsUnauthorizedOnException() {
+    void loginPropagatesException() {
         LoginRequest request = new LoginRequest();
         request.setClientId("550e8400-e29b-41d4-a716-446655440000");
         request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
@@ -106,35 +108,30 @@ class AuthControllerTest {
                 .build();
         when(useCase.generateToken(credentials)).thenThrow(new RuntimeException("err"));
 
-        ResponseEntity<TokenResponse> response = controller.login(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThatThrownBy(() -> controller.login(request))
+                .isInstanceOf(RuntimeException.class);
         verify(useCase).generateToken(credentials);
     }
 
     @Test
-    void loginReturnsUnauthorizedWhenCredentialsAreNotUuid() {
+    void loginThrowsBusinessExceptionWhenCredentialsAreNotUuid() {
         LoginRequest request = new LoginRequest();
         request.setClientId("not-uuid");
         request.setClientSecret("also-not-uuid");
 
-        ResponseEntity<TokenResponse> response = controller.login(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThatThrownBy(() -> controller.login(request))
+                .isInstanceOf(BusinessException.class);
         verifyNoInteractions(useCase);
     }
 
     @Test
-    void validateReturnsUnauthorizedWhenSecretNotUuid() {
+    void validateThrowsBusinessExceptionWhenSecretNotUuid() {
         ValidateRequest request = new ValidateRequest();
         request.setToken("tok");
         request.setClientSecret("not-uuid");
 
-        ResponseEntity<ValidateResponse> response = controller.validate(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().isValid()).isFalse();
+        assertThatThrownBy(() -> controller.validate(request))
+                .isInstanceOf(BusinessException.class);
         verifyNoInteractions(useCase);
     }
 
