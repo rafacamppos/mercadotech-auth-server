@@ -19,6 +19,11 @@ public class TokenUseCaseImpl implements TokenUseCase {
 
     @Override
     public TokenData generateToken(Credentials credentials) {
+        String cached = tokenCacheService.get(credentials.getClientId());
+        if (cached != null) {
+            logger.info(String.format("Using cached token for client %s", credentials.getClientId()), null);
+            return TokenData.builder().token(cached).build();
+        }
         TokenData tokenData = tokenService.generateToken(credentials);
         tokenCacheService.save(credentials.getClientId(), tokenData.getToken());
         logger.info(String.format("Token generated for client %s", credentials.getClientId()), null);
