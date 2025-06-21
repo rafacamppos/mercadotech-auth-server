@@ -12,6 +12,7 @@ import com.mercadotech.authserver.application.service.CredentialsService;
 import com.mercadotech.authserver.domain.model.Credentials;
 import com.mercadotech.authserver.domain.model.TokenData;
 import java.util.UUID;
+import com.mercadotech.authserver.exception.BusinessException;
 
 import com.mercadotech.authserver.logging.DefaultStructuredLogger;
 import io.micrometer.core.instrument.Counter;
@@ -39,34 +40,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
-        try {
-            validateUuid(request.getClientId());
-            validateUuid(request.getClientSecret());
-            return loginTimer.record(() -> {
-                Credentials credentials = CredentialsMapper.from(request);
-                credentialsService.save(credentials);
-                TokenData tokenData = tokenUseCase.generateToken(credentials);
-                tokensIssuedCounter.increment();
-                logger.info(String.format("Login success for client %s", credentials.getClientId()), null);
-                TokenResponse response = TokenResponseMapper.from(tokenData);
-                return ResponseEntity.ok(response);
-            });
-        } catch (Exception e) {
-            logger.error(String.format("Login failed for client %s", request.getClientId()), null, e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        validateUuid(request.getClientId());
+        validateUuid(request.getClientSecret());
+        return loginTimer.record(() -> {
+            Credentials credentials = CredentialsMapper.from(request);
+            credentialsService.save(credentials);
+            TokenData tokenData = tokenUseCase.generateToken(credentials);
+            tokensIssuedCounter.increment();
+            logger.info(String.format("Login success for client %s", credentials.getClientId()), null);
+            TokenResponse response = TokenResponseMapper.from(tokenData);
+            return ResponseEntity.ok(response);
+        });
     }
 
     @PostMapping("/token/validate")
     public ResponseEntity<ValidateResponse> validate(@RequestBody ValidateRequest request) {
         return validateTimer.record(() -> {
-            try {
-                validateUuid(request.getClientSecret());
-            } catch (Exception e) {
-                logger.error("Invalid clientSecret format", null, e);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ValidateResponse.builder().valid(false).build());
-            }
+            validateUuid(request.getClientSecret());
             Credentials credentials = CredentialsMapper.from(request);
             TokenData tokenData = TokenMapper.from(request);
             boolean valid = tokenUseCase.validateToken(tokenData, credentials);
@@ -82,6 +72,10 @@ public class AuthController {
     }
 
     private void validateUuid(String value) {
-        UUID.fromString(value);
+        try {
+            UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("Invalid UUID format", e);
+        }
     }
 }
