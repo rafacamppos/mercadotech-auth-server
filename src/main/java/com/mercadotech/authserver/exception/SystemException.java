@@ -3,17 +3,17 @@ package com.mercadotech.authserver.exception;
 /**
  * Exceção genérica para falhas inesperadas no sistema.
  */
-public class SistemaException extends RuntimeException {
+public class SystemException extends RuntimeException {
 
-    public SistemaException() {
+    public SystemException() {
         super();
     }
 
-    public SistemaException(String message) {
+    public SystemException(String message) {
         super(message);
     }
 
-    public SistemaException(String message, Throwable cause) {
+    public SystemException(String message, Throwable cause) {
         super(message, cause);
     }
 }

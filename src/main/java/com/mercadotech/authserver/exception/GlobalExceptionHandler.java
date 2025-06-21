@@ -24,8 +24,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Database error");
     }
 
-    @ExceptionHandler(SistemaException.class)
-    public ResponseEntity<String> handleSistema(SistemaException ex) {
+    @ExceptionHandler(SystemException.class)
+    public ResponseEntity<String> handleSistema(SystemException ex) {
         logger.error("Unexpected system error", null, ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error");
     }
