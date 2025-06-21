@@ -82,6 +82,16 @@ Com o container em execução, crie a tabela de credenciais executando:
 psql -h localhost -U postgres -d authdb -f scripts/create_credentials_table.sql
 ```
 
+### Redis com Docker
+
+Para armazenar o token do client secret em cache, execute:
+
+```bash
+./scripts/start-redis.sh
+```
+
+O script irá criar um container `auth-redis` ouvindo na porta `6379`.
+
 ## Endpoints principais
 
 ### `POST /login`
