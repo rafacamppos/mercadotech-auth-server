@@ -64,7 +64,9 @@ Opcionalmente você pode utilizar o Dockerfile incluso:
 
 ```bash
 docker build -t auth-server .
-docker run -p 8080:8080 auth-server
+docker run -d --name auth-server \
+  --network auth-network \
+  -p 8080:8080 auth-server
 ```
 
 ### Banco de dados PostgreSQL com Docker
@@ -156,6 +158,21 @@ para consultar e testar os endpoints disponíveis.
 O projeto expõe métricas via Spring Boot Actuator em `/actuator/prometheus` e `/actuator/metrics`, permitindo integração com o Prometheus.
 Os endpoints de login e validação possuem `Timer`s registrados no `MeterRegistry`,
 publicando histogramas e percentis (50%, 95% e 99%) de latência.
+
+### Monitoramento com Prometheus e Grafana
+
+Com a aplicação em execução em um container `auth-server`, é possível iniciar
+Prometheus e Grafana executando:
+
+```bash
+./scripts/start-monitoring.sh
+```
+
+O script cria uma rede Docker `auth-network`, constrói uma imagem personalizada
+do Prometheus com uma configuração que coleta métricas do `auth-server` e
+inicia também o Grafana. Após a execução, acesse `http://localhost:3000` com as
+credenciais padrão `admin`/`admin` e adicione o Prometheus disponível em
+`http://auth-prometheus:9090` como fonte de dados para visualizar os gráficos.
 
 
 ## Integração Contínua
