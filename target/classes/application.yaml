@@ -15,3 +15,12 @@ management:
             requests: 0.5,0.95,0.99
 LOG_PATTERN: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
 POD_NAME: "mercadotech-auth-server"
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/authdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
