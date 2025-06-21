@@ -22,7 +22,7 @@ public class JwtTokenService implements TokenService {
 
     @Override
     public TokenData generateToken(Credentials credentials) {
-        Key key = Keys.hmacShaKeyFor(credentials.getClientSecret().getBytes(StandardCharsets.UTF_8));
+        Key key = Keys.hmacShaKeyFor(credentials.getClientId().getBytes(StandardCharsets.UTF_8));
         Date now = new Date();
         Date expiration = new Date(now.getTime() + EXPIRATION_MILLIS);
         String token = Jwts.builder()

@@ -19,7 +19,7 @@ scrape_configs:
     static_configs:
       - targets: ['prometheus:9090']
 
-  - job_name: 'prometheus'
+  - job_name: 'minhas-aplicacoes'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
