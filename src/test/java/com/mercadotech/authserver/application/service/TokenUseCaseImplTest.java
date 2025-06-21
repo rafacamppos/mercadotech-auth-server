@@ -14,12 +14,14 @@ import static org.mockito.Mockito.*;
 class TokenUseCaseImplTest {
 
     private TokenService tokenService;
+    private TokenCacheService cacheService;
     private TokenUseCase useCase;
 
     @BeforeEach
     void setUp() {
         tokenService = Mockito.mock(TokenService.class);
-        useCase = new TokenUseCaseImpl(tokenService);
+        cacheService = Mockito.mock(TokenCacheService.class);
+        useCase = new TokenUseCaseImpl(tokenService, cacheService);
     }
 
     @Test
@@ -36,6 +38,7 @@ class TokenUseCaseImplTest {
 
         assertThat(result).isEqualTo(tokenData);
         verify(tokenService).generateToken(credentials);
+        verify(cacheService).save("id", "token");
     }
 
     @Test
