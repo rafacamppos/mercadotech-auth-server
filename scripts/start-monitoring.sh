@@ -1,43 +1,79 @@
 #!/bin/bash
-set -e
 
-PROM_CONTAINER="auth-prometheus"
-GRAFANA_CONTAINER="auth-grafana"
-NETWORK="auth-network"
-PROM_IMAGE="custom-prometheus"
-GRAFANA_IMAGE="grafana/grafana-oss:10.4.2"
+echo "📦 Iniciando ambiente Prometheus + Grafana..."
 
-# create network if it does not exist
-if ! docker network ls --format '{{.Name}}' | grep -q "^${NETWORK}$"; then
-  docker network create ${NETWORK}
-fi
+# Cria a rede docker se ainda não existir
+docker network inspect monitoring >/dev/null 2>&1 || docker network create monitoring
 
-# build prometheus image
-docker build -t ${PROM_IMAGE} monitoring/prometheus
+# Cria pastas necessárias
+mkdir -p prometheus grafana/provisioning/datasources
 
-# start prometheus container if not running
-if [ -z "$(docker ps -q -f name=${PROM_CONTAINER})" ]; then
-  if [ "$(docker ps -a -q -f name=${PROM_CONTAINER})" ]; then
-    docker rm ${PROM_CONTAINER}
-  fi
-  docker run -d --name ${PROM_CONTAINER} \
-    --network ${NETWORK} \
-    -p 9090:9090 \
-    ${PROM_IMAGE}
-fi
+# Cria arquivo Prometheus.yml com scraping da aplicação local na porta 8080
+cat > prometheus/prometheus.yml <<EOF
+global:
+  scrape_interval: 15s
 
-# start grafana container if not running
-if [ -z "$(docker ps -q -f name=${GRAFANA_CONTAINER})" ]; then
-  if [ "$(docker ps -a -q -f name=${GRAFANA_CONTAINER})" ]; then
-    docker rm ${GRAFANA_CONTAINER}
-  fi
-  docker run -d --name ${GRAFANA_CONTAINER} \
-    --network ${NETWORK} \
-    -p 3000:3000 \
-    ${GRAFANA_IMAGE}
-fi
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['prometheus:9090']
 
-cat <<MSG
-Prometheus running at http://localhost:9090
-Grafana running at http://localhost:3000 (default credentials admin/admin)
-MSG
+  - job_name: 'prometheus'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+EOF
+
+# Cria datasource do Grafana
+cat > grafana/provisioning/datasources/prometheus.yml <<EOF
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+EOF
+
+# Cria docker-compose.yml
+cat > docker-compose.yml <<EOF
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+networks:
+  monitoring:
+    driver: bridge
+EOF
+
+# Sobe os containers
+docker-compose up -d
+
+echo "✅ Prometheus e Grafana em execução!"
+echo "🔗 Prometheus: http://localhost:9090"
+echo "🔗 Grafana: http://localhost:3000 (login: admin / admin)"

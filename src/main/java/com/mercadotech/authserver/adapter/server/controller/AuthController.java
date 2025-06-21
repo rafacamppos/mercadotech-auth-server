@@ -44,7 +44,7 @@ public class AuthController {
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         validateUuid(request.getClientId());
         validateUuid(request.getClientSecret());
-        //return loginTimer.record(() -> {
+        return loginTimer.record(() -> {
             Credentials credentials = CredentialsMapper.from(request);
             credentialsService.save(credentials);
             TokenData tokenData = tokenUseCase.generateToken(credentials);
@@ -52,13 +52,13 @@ public class AuthController {
             logger.info(String.format("Login success for client %s", credentials.getClientId()), null);
             TokenResponse response = TokenResponseMapper.from(tokenData);
             return ResponseEntity.ok(response);
-       // });
+        });
     }
 
     @PostMapping("/token/validate")
-    @Timed
+
     public ResponseEntity<ValidateResponse> validate(@RequestBody ValidateRequest request) {
-        //return validateTimer.record(() -> {
+        return validateTimer.record(() -> {
             validateUuid(request.getClientId());
             Credentials credentials = CredentialsMapper.from(request);
             TokenData tokenData = TokenMapper.from(request);
@@ -71,7 +71,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ValidateResponse.builder().valid(false).build());
             }
-        //});
+        });
     }
 
     private void validateUuid(String value) {

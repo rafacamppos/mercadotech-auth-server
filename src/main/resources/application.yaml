@@ -1,9 +1,16 @@
+application:
+    name: mercado-tech-auth
 management:
   endpoints:
     web:
       exposure:
         include: "prometheus,metrics"
   metrics:
+    tags:
+      application: mercado-tech-auth
+    export:
+      prometheus:
+        enabled: true
     distribution:
       percentiles-histogram:
         http:
