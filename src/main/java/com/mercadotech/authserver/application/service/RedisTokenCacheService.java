@@ -21,4 +21,15 @@ public class RedisTokenCacheService implements TokenCacheService {
         redisTemplate.opsForValue().set(clientId, token, TTL);
         logger.info(String.format("Cached token for client %s", clientId), null);
     }
+
+    @Override
+    public String get(String clientId) {
+        String token = redisTemplate.opsForValue().get(clientId);
+        if (token != null) {
+            logger.info(String.format("Retrieved cached token for client %s", clientId), null);
+        } else {
+            logger.info(String.format("No cached token found for client %s", clientId), null);
+        }
+        return token;
+    }
 }

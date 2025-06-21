@@ -25,13 +25,14 @@ class TokenUseCaseImplTest {
     }
 
     @Test
-    void generateTokenDelegatesToService() {
+    void generateTokenGeneratesWhenCacheMiss() {
         Credentials credentials = Credentials.builder()
                 .clientId("id")
                 .clientSecret("secret")
                 .build();
         TokenData tokenData = TokenData.builder().token("token").build();
 
+        when(cacheService.get("id")).thenReturn(null);
         when(tokenService.generateToken(credentials)).thenReturn(tokenData);
 
         TokenData result = useCase.generateToken(credentials);
@@ -39,6 +40,22 @@ class TokenUseCaseImplTest {
         assertThat(result).isEqualTo(tokenData);
         verify(tokenService).generateToken(credentials);
         verify(cacheService).save("id", "token");
+    }
+
+    @Test
+    void generateTokenReturnsCachedTokenWhenAvailable() {
+        Credentials credentials = Credentials.builder()
+                .clientId("id")
+                .clientSecret("secret")
+                .build();
+
+        when(cacheService.get("id")).thenReturn("cached");
+
+        TokenData result = useCase.generateToken(credentials);
+
+        assertThat(result).isEqualTo(TokenData.builder().token("cached").build());
+        verifyNoInteractions(tokenService);
+        verify(cacheService, never()).save(anyString(), anyString());
     }
 
     @Test
