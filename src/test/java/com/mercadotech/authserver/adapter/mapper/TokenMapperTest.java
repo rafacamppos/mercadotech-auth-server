@@ -13,7 +13,7 @@ class TokenMapperTest {
     void fromValidateRequestMapsToken() {
         ValidateRequest request = ValidateRequest.builder()
                 .token("tok")
-                .clientSecret("secret")
+                .clientId("secret")
                 .build();
 
         TokenData result = TokenMapper.from(request);

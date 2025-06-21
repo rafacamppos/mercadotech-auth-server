@@ -82,7 +82,7 @@ class AuthControllerTest {
     void validateReturnsResultFromUseCase() {
         ValidateRequest request = new ValidateRequest();
         request.setToken("tok");
-        request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
+        request.setClientId("123e4567-e89b-12d3-a456-426614174000");
         Credentials credentials = Credentials.builder()
                 .clientSecret("123e4567-e89b-12d3-a456-426614174000")
                 .build();
@@ -128,7 +128,7 @@ class AuthControllerTest {
     void validateThrowsBusinessExceptionWhenSecretNotUuid() {
         ValidateRequest request = new ValidateRequest();
         request.setToken("tok");
-        request.setClientSecret("not-uuid");
+        request.setClientId("not-uuid");
 
         assertThatThrownBy(() -> controller.validate(request))
                 .isInstanceOf(BusinessException.class);
@@ -139,7 +139,7 @@ class AuthControllerTest {
     void validateReturnsUnauthorizedWhenTokenInvalid() {
         ValidateRequest request = new ValidateRequest();
         request.setToken("tok");
-        request.setClientSecret("123e4567-e89b-12d3-a456-426614174000");
+        request.setClientId("123e4567-e89b-12d3-a456-426614174000");
         Credentials credentials = Credentials.builder()
                 .clientSecret("123e4567-e89b-12d3-a456-426614174000")
                 .build();

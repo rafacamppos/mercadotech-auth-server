@@ -16,7 +16,7 @@ public class CredentialsMapper {
 
     public Credentials from(ValidateRequest request) {
         return Credentials.builder()
-                .clientSecret(request.getClientSecret())
+                .clientSecret(request.getClientId())
                 .build();
     }
 }

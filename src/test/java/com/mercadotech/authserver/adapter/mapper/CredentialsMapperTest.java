@@ -27,7 +27,7 @@ class CredentialsMapperTest {
     void fromValidateRequestMapsSecret() {
         ValidateRequest request = ValidateRequest.builder()
                 .token("tok")
-                .clientSecret("sec")
+                .clientId("sec")
                 .build();
 
         Credentials result = CredentialsMapper.from(request);

@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ValidateRequest {
     private String token;
-    private String clientSecret;
+    private String clientId;
 }

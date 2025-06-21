@@ -15,7 +15,6 @@ import java.util.UUID;
 import com.mercadotech.authserver.exception.BusinessException;
 
 import com.mercadotech.authserver.logging.DefaultStructuredLogger;
-import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
@@ -60,7 +59,7 @@ public class AuthController {
     @Timed
     public ResponseEntity<ValidateResponse> validate(@RequestBody ValidateRequest request) {
         //return validateTimer.record(() -> {
-            validateUuid(request.getClientSecret());
+            validateUuid(request.getClientId());
             Credentials credentials = CredentialsMapper.from(request);
             TokenData tokenData = TokenMapper.from(request);
             boolean valid = tokenUseCase.validateToken(tokenData, credentials);
