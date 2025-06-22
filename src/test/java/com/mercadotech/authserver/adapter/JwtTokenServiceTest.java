@@ -12,8 +12,10 @@ import com.mercadotech.authserver.exception.BusinessException;
 public class JwtTokenServiceTest {
 
     private final JwtTokenService service = new JwtTokenService();
-    private final String clientId = "client";
-    private final String secret = "secretsecretsecretsecretsecretsecret"; // 32+ characters for HS256
+    // the service signs tokens using the clientId and validates using the secret
+    // so both must contain a valid HS256 key length
+    private final String clientId = "123e4567-e89b-12d3-a456-426614174000";
+    private final String secret = "123e4567-e89b-12d3-a456-426614174000";
 
     @Test
     void generateTokenReturnsValidJwt() {
