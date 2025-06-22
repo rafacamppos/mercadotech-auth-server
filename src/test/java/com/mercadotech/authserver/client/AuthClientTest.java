@@ -28,7 +28,7 @@ class AuthClientTest {
     void validatesTokenViaRestCall() {
         server.expect(requestTo("http://auth/token/validate"))
                 .andExpect(method(org.springframework.http.HttpMethod.POST))
-                .andExpect(content().json("{\"token\":\"tok\",\"clientId\":\"id\"}"))
+                .andExpect(content().json("{\"token\":\"tok\",\"client_id\":\"id\"}"))
                 .andRespond(withSuccess("{\"valid\":true}", MediaType.APPLICATION_JSON));
 
         boolean result = client.validateToken("tok", "id");
