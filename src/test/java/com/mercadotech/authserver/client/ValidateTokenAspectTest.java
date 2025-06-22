@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -29,9 +29,9 @@ class ValidateTokenAspectTest {
     void setUp() {
         authClient = Mockito.mock(AuthClient.class);
         ValidateTokenAspect aspect = new ValidateTokenAspect(authClient);
-        ProxyFactory factory = new ProxyFactory(new TestServiceImpl());
+        AspectJProxyFactory factory = new AspectJProxyFactory(new TestServiceImpl());
         factory.addAspect(aspect);
-        proxy = (TestService) factory.getProxy();
+        proxy = factory.getProxy();
     }
 
     @Test
