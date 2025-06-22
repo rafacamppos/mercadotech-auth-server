@@ -1,6 +1,7 @@
 package com.mercadotech.authserver.client;
 
 import com.mercadotech.authserver.exception.BusinessException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,6 +19,11 @@ class ValidateTokenAspectTest {
     private TestService proxy;
 
     interface TestService { void call(); }
+
+    @AfterEach
+    void clearContext() {
+        RequestContextHolder.resetRequestAttributes();
+    }
 
     @BeforeEach
     void setUp() {
@@ -50,6 +56,16 @@ class ValidateTokenAspectTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         assertThatThrownBy(() -> proxy.call()).isInstanceOf(BusinessException.class);
+        verify(authClient).validateToken("tok", "id");
+    }
+
+    @Test
+    void throwsWhenHeadersMissing() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        assertThatThrownBy(() -> proxy.call()).isInstanceOf(BusinessException.class);
+        verifyNoInteractions(authClient);
     }
 
     static class TestServiceImpl implements TestService {
