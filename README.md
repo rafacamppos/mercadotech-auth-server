@@ -174,6 +174,18 @@ inicia também o Grafana. Após a execução, acesse `http://localhost:3000` com
 credenciais padrão `admin`/`admin` e adicione o Prometheus disponível em
 `http://auth-prometheus:9090` como fonte de dados para visualizar os gráficos.
 
+## Biblioteca de validação de token
+
+A aplicação disponibiliza um pequeno *starter* que pode ser utilizado em outros
+projetos Spring Boot para validar o token gerado pelo `auth-server` sem a
+necessidade de implementar um client manualmente. Basta adicionar o jar como
+dependência e anotar os métodos ou controladores que requerem validação com
+`@ValidateToken`.
+
+O endereço do servidor de autenticação pode ser configurado pela propriedade
+`auth.server.url` (padrão `http://localhost:8080`). O cabeçalho `Authorization`
+deve conter o token e `X-Client-Id` o identificador do cliente.
+
 
 ## Integração Contínua
 
